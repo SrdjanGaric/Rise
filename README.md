@@ -13,4 +13,6 @@ LAlt - Walk
 
 Space - Jump
 
+I - Inventory
+
 Can't jump while sprinting or walking
