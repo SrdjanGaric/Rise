@@ -5,29 +5,35 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     public CharacterController characterController;
-    Vector3 input;
-    Vector3 velocity;
+    public Vector3 input;
+    public Vector3 velocity;
     Vector3 movement;
 
-    float movementSpeed = 5f;
-    float gravity = -20f;
-    float jumpHeight = 1.5f;
+    public float movementSpeed = 5;
+    public float gravity = -20;
+    public float jumpHeight = 1.5f;
 
     public Transform groundCheck;
     float groundDistance = 0.4f;
     public LayerMask groundMask;
-    bool isGrounded;
+    public bool isGrounded;
 
-    // Update is called once per frame
+    PlayerAttributes playerAttributes;
+
+    private void Start()
+    {
+        playerAttributes = GameObject.Find("First-Person Player").GetComponent<PlayerAttributes>();
+    }
+
     void Update()
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
 
         if (isGrounded)
         {
-            if (velocity.y < 0f)
+            if (velocity.y < 0)
             {
-                velocity.y = -2f;
+                velocity.y = -2;
             }
 
             GetInput();
@@ -35,7 +41,7 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            if (input.y > 0f)
+            if (input.y > 0)
             {
                 if ((characterController.collisionFlags & CollisionFlags.Above) != 0)
                 {
@@ -52,31 +58,35 @@ public class PlayerMovement : MonoBehaviour
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
 
-        input = new Vector3(x, 0f, z);
+        input = new Vector3(x, 0, z);
     }
 
     void SpecialActions()
     {
-        if (Input.GetKeyDown(KeyCode.LeftShift))
+        if (playerAttributes.hunger == playerAttributes.minHunger || playerAttributes.energy == playerAttributes.minEnergy)
         {
-            movementSpeed = 10f;
+            movementSpeed = 1;
         }
-
-        if (Input.GetKeyDown(KeyCode.LeftAlt))
+        else
         {
-            movementSpeed = 2.5f;
-        }
-
-        if (Input.GetKeyUp(KeyCode.LeftAlt) || Input.GetKeyUp(KeyCode.LeftShift))
-        {
-            movementSpeed = 5f;
-        }
-
-        if(movementSpeed == 5f)
-        {
-            if (Input.GetButtonDown("Jump"))
+            if (Input.GetKeyDown(KeyCode.LeftShift) && playerAttributes.stamina > playerAttributes.minStamina)
             {
-                velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+                movementSpeed = 10;
+            }
+
+            if (Input.GetKeyDown(KeyCode.LeftAlt))
+            {
+                movementSpeed = 2.5f;
+            }
+
+            if (Input.GetKeyUp(KeyCode.LeftAlt) || Input.GetKeyUp(KeyCode.LeftShift))
+            {
+                movementSpeed = 5;
+            }
+
+            if (Input.GetButtonDown("Jump") && movementSpeed == 5 && playerAttributes.stamina > playerAttributes.minStamina)
+            {
+                velocity.y = Mathf.Sqrt(jumpHeight * -2 * gravity);
             }
         }
     }
@@ -87,8 +97,8 @@ public class PlayerMovement : MonoBehaviour
         {
             movement = transform.right * input.x + transform.forward * input.z;
         }
-        
-        movementSpeed = Mathf.Clamp(movementSpeed, 2.5f, 10f);
+
+        movementSpeed = Mathf.Clamp(movementSpeed, 2.5f, 10);
 
         characterController.Move(movement * movementSpeed * Time.deltaTime);
 
